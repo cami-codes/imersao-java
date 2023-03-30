@@ -1,7 +1,9 @@
 package org.alurastickers;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -10,13 +12,17 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws Exception {
 
         // 1. Get API key from config file
         String key = ResourceBundle.getBundle("config").getString("api.key");
 
         // 2. Build URL and send HTTP request to get top 250 movies from IMDB API
-        String urlTop250Movies = "https://imdb-api.com/en/API/Top250Movies/" + key;
+
+        // url is not available anymore
+        // String urlTop250Movies = "https://imdb-api.com/en/API/Top250Movies/" + key;
+        String urlTop250Movies = "https://raw.githubusercontent.com/alura-cursos/imersao-java-2-api/main/TopMovies.json";
+
         URI addressMovies = URI.create(urlTop250Movies);
 
         var client = HttpClient.newHttpClient();
@@ -30,9 +36,14 @@ public class Main {
 
         // 4. Display and manipulate the data
         for (Map<String, String> movie : moviesList) {
+
             String title = movie.get("title");
             String image = movie.get("image");
             String ratingString = movie.get("imDbRating");
+            String fileName = title;
+            InputStream inputStream = new URL(image).openStream();
+
+
 
             // Add movie and rating emojis to title string
             title += " 🎬";
@@ -56,6 +67,9 @@ public class Main {
             ratingString = "Classificação: " + stars + " (" + ratingString + ")";
 
             // Print movie title, poster image, and rating
+             var stickerGenerator = new StickerGenerator();
+            stickerGenerator.createSticker(inputStream, fileName);
+
             System.out.println("\033[1m" + title + "\033[0m");
             System.out.println(image);
             System.out.println("\033[33m" + ratingString + "\033[0m");
